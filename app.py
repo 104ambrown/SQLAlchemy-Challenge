@@ -37,4 +37,27 @@ def welcome():
         f"/api/v1.0/start_date<br/>"
         f"/api/v1.0/start_date/end_date"
     )
+# Precipitation route    
+@app.route("/api/v1.0/precipitations")
+def precipitation():
+    """Query for the dates and temperature observations from the last year.
+       Convert the query results to a Dictionary using date as the key and tobs as the value.
+       Return the JSON representation of your dictionary."""
+    
+    # Calculate the date 1 year ago from today (today being 2017-08-23)
+    today = dt.date(2017, 8, 23)
+    year_ago = today - dt.timedelta(days=365)
 
+    # Perform a query to retrieve the date and precipitation scores
+    results = session.query(Measurement.prcp, Measurement.date)\
+                                        .filter(Measurement.date >= year_ago)\
+                                        .filter(Measurement.date < today).all()
+
+    # Creating a dictionary from the row data and appending it to a all_precipitation
+    all_precipitation = []
+    for precipitation in results:
+        precipitation_dict = {}
+        precipitation_dict[precipitation.date] = precipitation.prcp
+        all_precipitation.append(precipitation_dict)
+
+    return jsonify(all_precipitation)
