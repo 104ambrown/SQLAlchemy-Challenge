@@ -16,10 +16,25 @@ engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 Base = automap_base()
 # reflect the tables
 Base.prepare(engine, reflect=True)
-# Save reference to the tables
+# Save references to the tables
 Measurement = Base.classes.measurement
 Station = Base.classes.station
 
 # Flask Setup
 app = Flask(__name__)
+
+# Flask Routes
+
+# Home Route
+@app.route("/")
+def welcome():
+    """List all available api routes."""
+    return (
+        f"Available Routes:<br/>"
+        f"/api/v1.0/precipitations<br/>"
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/start_date<br/>"
+        f"/api/v1.0/start_date/end_date"
+    )
 
