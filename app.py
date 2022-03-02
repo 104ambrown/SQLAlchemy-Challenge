@@ -83,7 +83,7 @@ def tempObs():
     results = session.query(Measurement.date, Measurement.station, Measurement.tobs)\
                             .filter(Measurement.date >= one_year)\
                             .filter(Measurement.date < today).all()
-    # Create a dictionary from the row data and append to a list of all_stations
+    # Create a dictionary from the row data and append to a list of all temperature observations
     all_tempObs = []
     for tob in results:
         tempObs_dict = {}
@@ -92,3 +92,43 @@ def tempObs():
         tempObs_dict["tobs"] = tob.tobs
         all_tempObs.append(tempObs_dict)
     return jsonify(all_tempObs)
+
+# Minimum, maximum, and averagre temperature results
+@app.route("/api/v1.0/<start>")
+def start(start, end=""):
+    """Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+    When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date."""
+    # Perform a query to calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.else:
+    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs))\
+                            .filter(Measurement.date >= start).all()
+    # Create a dictionary from the row data and append to a list of all_stations
+    all_minMaxAvg = []
+    for mam in results:
+        minMaxAvg_dict = {}
+        minMaxAvg_dict["TMIN"] = mam[0]
+        minMaxAvg_dict["TAVG"] = mam[1]
+        minMaxAvg_dict["TMAX"] = mam[2]
+        all_minMaxAvg.append(minMaxAvg_dict)
+
+    return jsonify(all_minMaxAvg)
+
+@app.route("/api/v1.0/<start>/<end>")
+def startend(start, end):
+    """Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+    When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive."""
+    # Perform a query to calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive.
+    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs))\
+                            .filter(Measurement.date >= start)\
+                            .filter(Measurement.date <= end).all()
+     # Create a dictionary from the row data and append to a list of all_stations
+    all_minMaxAvg = []
+    for mam in results:
+        minMaxAvg_dict = {}
+        minMaxAvg_dict["TMIN"] = mam[0]
+        minMaxAvg_dict["TAVG"] = mam[1]
+        minMaxAvg_dict["TMAX"] = mam[2]
+        all_minMaxAvg.append(minMaxAvg_dict)
+    return jsonify(all_minMaxAvg)
+
+if __name__ == '__main__':
+    app.run(debug=True)
