@@ -71,3 +71,24 @@ def stations():
         stations_dict["station"] = station.station
         all_stations.append(stations_dict)
     return jsonify(all_stations)
+
+# Temperature observation route
+@app.route("/api/v1.0/tobs")
+def tempObs():
+    """Return a JSON list of Temperature Observations (tobs) for the previous year."""
+    # Calculate the date 1 year ago from today (today being 2017-08-23)
+    today = dt.date(2017, 8, 23)
+    one_year = today - dt.timedelta(days=365)
+    # Perform a query to retrieve the temperature observations from the previous year
+    results = session.query(Measurement.date, Measurement.station, Measurement.tobs)\
+                            .filter(Measurement.date >= one_year)\
+                            .filter(Measurement.date < today).all()
+    # Create a dictionary from the row data and append to a list of all_stations
+    all_tempObs = []
+    for tob in results:
+        tempObs_dict = {}
+        tempObs_dict["station"] = tob.station
+        tempObs_dict["date"] = tob.date
+        tempObs_dict["tobs"] = tob.tobs
+        all_tempObs.append(tempObs_dict)
+    return jsonify(all_tempObs)
